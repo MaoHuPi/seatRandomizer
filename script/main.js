@@ -1,6 +1,6 @@
 /*
  * 2023 © MaoHuPi
- * sitRandommer/script/main.js
+ * seatRandomizer/script/main.js
  */
 
 'use strict'
@@ -124,7 +124,7 @@ for(let buttonName of contentTypes){
     deleteBtn.className = 'deleteBtn';
     deleteBtn.innerText = 'dele';
     deleteBtn.onclick = () => {
-        sitMap.deleteType(buttonName);
+        seatMap.deleteType(buttonName);
         viewBoxUpdate();
     };
     row.appendChild(deleteBtn);
@@ -139,52 +139,52 @@ for(let buttonName of contentTypes){
 $(`#content-type-${contentType}`).click();
 
 
-// sit map
-class Sit{
+// seat map
+class Seat{
     constructor(num = 0, type = 'number'){
         this.num = num;
         this.type = type;
     }
 }
-class SitMap{
+class SeatMap{
     #w = 3;
     #h = 2;
     #array = 2;
     #resize = function(){
-        this.#array = new Array(this.#w * this.#h).fill(0).map(() => new Sit(0, 'empty'));
+        this.#array = new Array(this.#w * this.#h).fill(0).map(() => new Seat(0, 'empty'));
     }
     #maxNum = function(){
-        return(this.#array.length - this.#array.filter(sit => sit.type == 'disable').length);
+        return(this.#array.length - this.#array.filter(seat => seat.type == 'disable').length);
     }
     #toDict = function(){
-        let sitDict = {};
+        let seatDict = {};
         for(let i = 0; i < this.#array.length; i++){
-            let sit = this.#array[i];
-            if(sit.num != 0){
-                sitDict[sit.num] = {
-                        num: sit.num, 
+            let seat = this.#array[i];
+            if(seat.num != 0){
+                seatDict[seat.num] = {
+                        num: seat.num, 
                         x: i % this.#w, 
                         y: Math.floor(i / this.#w), 
-                        type: sit.type
+                        type: seat.type
                 };
             }
         }
-        return(sitDict);
+        return(seatDict);
     }
     #toList = function(){
-        let sitList = [];
+        let seatList = [];
         for(let i = 0; i < this.#array.length; i++){
-            let sit = this.#array[i];
-            if(sit.num != 0){
-                sitList.push({
-                        num: sit.num, 
+            let seat = this.#array[i];
+            if(seat.num != 0){
+                seatList.push({
+                        num: seat.num, 
                         x: i % this.#w, 
                         y: Math.floor(i / this.#w), 
-                        type: sit.type
+                        type: seat.type
                 });
             }
         }
-        return(sitList);
+        return(seatList);
     }
     constructor(w = 3, h = 2){
         this.#w = w;
@@ -200,7 +200,7 @@ class SitMap{
             }
             else if(this.#w < num){
                 for(let i = 0; i < this.#h; i++){
-                    this.#array.splice(num*i + this.#w, 0, ...new Array(num-this.#w).fill(0).map(() => new Sit(0, 'empty')));
+                    this.#array.splice(num*i + this.#w, 0, ...new Array(num-this.#w).fill(0).map(() => new Seat(0, 'empty')));
                 }
             }
             this.#w = parseInt(num);
@@ -212,7 +212,7 @@ class SitMap{
                 this.#array.splice(num*this.#w, (this.#h - num)*this.#w);
             }
             else if(this.#h < num){
-                this.#array.push(...new Array((num - this.#h)*this.#w).fill(0).map(() => new Sit(0, 'empty')));
+                this.#array.push(...new Array((num - this.#h)*this.#w).fill(0).map(() => new Seat(0, 'empty')));
             }
             this.#h = parseInt(num);
         }
@@ -222,63 +222,63 @@ class SitMap{
     get array(){return(this.#array)}
     setNum(x = 0, y = 0, num = 1){
         let maxNum = this.#maxNum();
-        let sit = this.#array[x + y*this.#w];
-        let oldNum = sit.num;
-        sit.num = Math.max(Math.min(num, maxNum), 1);
-        for(let sit2 of this.#array){
-            if(sit2 !== sit && sit2.num == sit.num){
-                sit2.num = oldNum;
+        let seat = this.#array[x + y*this.#w];
+        let oldNum = seat.num;
+        seat.num = Math.max(Math.min(num, maxNum), 1);
+        for(let seat2 of this.#array){
+            if(seat2 !== seat && seat2.num == seat.num){
+                seat2.num = oldNum;
             }
         }
     }
     setType(x = 0, y = 0, type = 'number'){
-        let sit = this.#array[x + y*this.#w];
-        sit.type = type;
+        let seat = this.#array[x + y*this.#w];
+        seat.type = type;
         if(type == 'disable'){
-            sit.num = 0;
+            seat.num = 0;
         }
     }
     deleteType(type = 'number'){
-        for(let sit of this.#array){
-            if(sit.type == type){
-                sit.type = 'empty';
+        for(let seat of this.#array){
+            if(seat.type == type){
+                seat.type = 'empty';
             }
         }
     }
     format(){
         let maxNum = this.#maxNum();
         let useableNums = new Array(maxNum).fill(0).map((n, i) => i+1);
-        let outOfRangeSits = [];
-        for(let sit of this.#array){
-            if(['empty', 'disable'].indexOf(sit.type) > -1){
-                sit.num = 0;
+        let outOfRangeSeats = [];
+        for(let seat of this.#array){
+            if(['empty', 'disable'].indexOf(seat.type) > -1){
+                seat.num = 0;
             }
-            else if(sit.num > maxNum || sit.num < 1){
-                outOfRangeSits.push(sit);
+            else if(seat.num > maxNum || seat.num < 1){
+                outOfRangeSeats.push(seat);
             }
             else{
-                useableNums.splice(useableNums.indexOf(sit.num), 1);
+                useableNums.splice(useableNums.indexOf(seat.num), 1);
             }
         }
-        for(let sit of outOfRangeSits){
-            sit.num = useableNums.shift();
+        for(let seat of outOfRangeSeats){
+            seat.num = useableNums.shift();
         }
     }
     random(){
         this.format();
         let maxNum = this.#maxNum();
         let useableNums = new Array(maxNum).fill(0).map((n, i) => i+1);
-        for(let sit of this.#array){
-            let index = useableNums.indexOf(sit.num);
+        for(let seat of this.#array){
+            let index = useableNums.indexOf(seat.num);
             if(index > -1){
                 useableNums.splice(index, 1);
             }
         }
         useableNums = useableNums.sort(() => Math.random() - 0.5);
-        for(let sit of this.#array){
-            if(sit.type == 'empty'){
-                sit.type = 'number';
-                sit.num = useableNums.shift();
+        for(let seat of this.#array){
+            if(seat.type == 'empty'){
+                seat.type = 'number';
+                seat.num = useableNums.shift();
             }
         }
     }
@@ -287,11 +287,11 @@ class SitMap{
             forceList = getForceList();
         }
         let score = 0;
-        let sitDict = this.#toDict();
+        let seatDict = this.#toDict();
         for(let force of forceList){
-            let sit1 = sitDict[force.num1];
-            let sit2 = sitDict[force.num2];
-            let d = distance([sit1.x, sit1.y], [sit2.x, sit2.y]);
+            let seat1 = seatDict[force.num1];
+            let seat2 = seatDict[force.num2];
+            let d = distance([seat1.x, seat1.y], [seat2.x, seat2.y]);
             score += d * -force.forceValue;
         }
         return(score);
@@ -299,7 +299,7 @@ class SitMap{
     force(){
         this.random();
         let forceList = getForceList();
-        let sitList = this.#toList();
+        let seatList = this.#toList();
         function center(...pList){
             let pC = {x: 0, y: 0};
             for(let p of pList){
@@ -310,91 +310,91 @@ class SitMap{
             pC.y /= pList.length;
             return(pC);
         }
-        let sitDict = {};
-        sitList.map(sit => sitDict[sit.num] = sit);
+        let seatDict = {};
+        seatList.map(seat => seatDict[seat.num] = seat);
         for(let i = 0; i < 10; i++){
-            for(let key1 in sitDict){
-                for(let key2 in sitDict){
+            for(let key1 in seatDict){
+                for(let key2 in seatDict){
                     if(key1 != key2){
-                        let sitList2 = [sitDict[key1], sitDict[key2]];
-                        let pC = center(...sitList2);
-                        for(let sit of sitList2){
-                            if(sit.type != 'lock'){
-                                sit.fx == undefined ? sit.fx = 0 : false;
-                                sit.fy == undefined ? sit.fy = 0 : false;
-                                let rad = Math.atan2((pC.y - sit.y), (pC.x - sit.x));
+                        let seatList2 = [seatDict[key1], seatDict[key2]];
+                        let pC = center(...seatList2);
+                        for(let seat of seatList2){
+                            if(seat.type != 'lock'){
+                                seat.fx == undefined ? seat.fx = 0 : false;
+                                seat.fy == undefined ? seat.fy = 0 : false;
+                                let rad = Math.atan2((pC.y - seat.y), (pC.x - seat.x));
                                 let fx = Math.cos(rad) * 1;
                                 let fy = Math.sin(rad) * 1;
-                                sit.fx += fx * -1;
-                                sit.fy += fy * -1;
+                                seat.fx += fx * -1;
+                                seat.fy += fy * -1;
                             }
                         }
                     }
                 }
             }
             for(let force of forceList){
-                let sitList2 = [sitDict[force.num1], sitDict[force.num2]];
-                let pC = center(...sitList2);
-                for(let sit of sitList2){
-                    if(sit.type != 'lock'){
-                        sit.fx == undefined ? sit.fx = 0 : false;
-                        sit.fy == undefined ? sit.fy = 0 : false;
-                        let rad = Math.atan2((pC.y - sit.y), (pC.x - sit.x));
+                let seatList2 = [seatDict[force.num1], seatDict[force.num2]];
+                let pC = center(...seatList2);
+                for(let seat of seatList2){
+                    if(seat.type != 'lock'){
+                        seat.fx == undefined ? seat.fx = 0 : false;
+                        seat.fy == undefined ? seat.fy = 0 : false;
+                        let rad = Math.atan2((pC.y - seat.y), (pC.x - seat.x));
                         let fx = Math.cos(rad) * 1;
                         let fy = Math.sin(rad) * 1;
-                        if(force.forceValue > 0 && distance([0, 0], [fx, fy]) > distance(sit, pC)){
+                        if(force.forceValue > 0 && distance([0, 0], [fx, fy]) > distance(seat, pC)){
                             continue;
                         }
-                        sit.fx += fx * force.forceValue;
-                        sit.fy += fy * force.forceValue;
+                        seat.fx += fx * force.forceValue;
+                        seat.fy += fy * force.forceValue;
                     }
                 }
             }
-            for(let key in sitDict){
-                let sit = sitDict[key];
-                if(sit.type != 'lock'){
-                    sit.x += sit.fx;
-                    sit.y += sit.fy;
+            for(let key in seatDict){
+                let seat = seatDict[key];
+                if(seat.type != 'lock'){
+                    seat.x += seat.fx;
+                    seat.y += seat.fy;
                 }
             }
         }
-        sitList.map(sit => sit = sitDict[sit.num]);
+        seatList.map(seat => seat = seatDict[seat.num]);
         let oldArray = this.#array;
         this.#resize();
-        for(let sit of sitList.filter(sit => sit.type == 'lock')){
-            let target = this.#array[sit.x + sit.y*this.#w];
-            [target.num, target.type] = [sit.num, sit.type];
-            sitList.splice(sitList.indexOf(sit), 1);
+        for(let seat of seatList.filter(seat => seat.type == 'lock')){
+            let target = this.#array[seat.x + seat.y*this.#w];
+            [target.num, target.type] = [seat.num, seat.type];
+            seatList.splice(seatList.indexOf(seat), 1);
         }
         for(let arr of oldArray.map((n, i) => [n, i]).filter(arr => ['disable'].indexOf(arr[0].type) > -1)){
             let target = this.#array[arr[1]];
             [target.num, target.type] = [arr[0].num, arr[0].type];
         }
 
-        let pNow = sitList.sort((a, b) => (a.x+a.y) - (b.x+b.y))[0];
+        let pNow = seatList.sort((a, b) => (a.x+a.y) - (b.x+b.y))[0];
         let pos = {x: 0, y: 0};
-        let sitListLen = sitList.length;
-        for(let i = 0; i < sitListLen; i++){
+        let seatListLen = seatList.length;
+        for(let i = 0; i < seatListLen; i++){
             let target = this.#array[pos.x + pos.y*this.#w];
             [target.num, target.type] = [pNow.num, pNow.type];
             let pNowOri = pNow;
             pNow = deepCopy(pNow);
-            sitList.splice(sitList.indexOf(pNowOri), 1);
-            if(sitList.length < 1){
+            seatList.splice(seatList.indexOf(pNowOri), 1);
+            if(seatList.length < 1){
                 break;
             }
-            let pNeighbor = closest(pNow, sitList);
+            let pNeighbor = closest(pNow, seatList);
             let neighborXOrY = [['x', Math.abs(pNow.x - pNeighbor.x)], ['y', Math.abs(pNow.y - pNeighbor.y)]].sort((a, b) => b[1] - a[1])[0][0];
             let neighborPOrN = {x: pNow.x < pNeighbor.x, y: Math.abs(pNow.y < pNeighbor.y)}[neighborXOrY] ? 1 : -1;
-            let useableSit = this.#array
-                .map((sit, i) => [{x: i%this.#w, y: Math.floor(i/this.#w)}, sit])
+            let useableSeat = this.#array
+                .map((seat, i) => [{x: i%this.#w, y: Math.floor(i/this.#w)}, seat])
                 .filter(arr => arr[1].type == 'empty')
                 .filter(arr => 
                     // (arr[0][neighborXOrY] > pNow[neighborXOrY] == neighborPOrN > 0 ||
                     // arr[0][neighborXOrY == 'x' ? 'y' : 'x'] == pNow[neighborXOrY == 'x' ? 'y' : 'x']) && 
                     !(arr[0].x == pNow.x && arr[0].y == pNow.y)
                 );
-            let pNext = useableSit.map(arr => [arr[0], arr[1], distance(pNow, arr[0])]).sort((a, b) => a[2] - b[2])[0];
+            let pNext = useableSeat.map(arr => [arr[0], arr[1], distance(pNow, arr[0])]).sort((a, b) => a[2] - b[2])[0];
             try{
                 pos = pNext[0];
                 pNow = pNeighbor;
@@ -406,20 +406,20 @@ class SitMap{
         }
 
         // for(let x = 0; x < this.#w; x++){
-        //     // sitList = sitList.sort((a, b) => a.x - b.x).filter(sit => sit !== undefined);
-        //     // let clo = sitList.splice(0, this.#w);
+        //     // seatList = seatList.sort((a, b) => a.x - b.x).filter(seat => seat !== undefined);
+        //     // let clo = seatList.splice(0, this.#w);
         //     // clo = clo.sort((a, b) => a.y - b.y);
         //     // console.log(clo);
         //     for(let y = 0; y < this.#h; y++){
         //         if(this.#array[x + y*this.#w].type == 'empty'){
-        //             let sit = sitList.shift();
-        //             // let sit = clo.shift();
+        //             let seat = seatList.shift();
+        //             // let seat = clo.shift();
         //             let target = this.#array[x + y*this.#w];
-        //             console.log(target, sit);
-        //             [target.num, target.type] = [sit.num, sit.type];
+        //             console.log(target, seat);
+        //             [target.num, target.type] = [seat.num, seat.type];
         //         }
         //     }
-        //     // sitList.push(...clo);
+        //     // seatList.push(...clo);
         // }
     }
     force2(){
@@ -463,7 +463,7 @@ class SitMap{
         }
         let link = $e('a');
         link.href = cvs.toDataURL();
-        link.download = 'sitRandommer.png';
+        link.download = 'seatRandomizer.png';
         link.click();
         link.remove();
         alert('Image Saved!');
@@ -489,9 +489,9 @@ class SitMap{
     }
 }
 
-let sitMap = new SitMap(3, 2);
+let seatMap = new SeatMap(3, 2);
 function viewBoxUpdate(){
-    let array = sitMap.array;
+    let array = seatMap.array;
     let deltaLen = array.length - viewBox_table.children.length;
     let children = viewBox_table.children;
     if(deltaLen > 0){
@@ -505,8 +505,8 @@ function viewBoxUpdate(){
             children[children.length - 1].remove();
         }
     }
-    viewBox_table.style.setProperty('--hNum', sitMap.w);
-    viewBox_table.style.setProperty('--vNum', sitMap.h);
+    viewBox_table.style.setProperty('--hNum', seatMap.w);
+    viewBox_table.style.setProperty('--vNum', seatMap.h);
     let visibleDict = {};
     [...$$(`[id|=content-visible]`)].forEach(n => visibleDict[n.id.split('-')[2]] = n.checked);
     for(let i = 0; i < array.length; i++){
@@ -526,24 +526,24 @@ function viewBoxUpdate(){
 }
 viewBoxUpdate();
 $('#controlBox-size-width').onchange = function(){
-    sitMap.w = this.value;
-    sitMap.format();
+    seatMap.w = this.value;
+    seatMap.format();
     viewBoxUpdate();
 }
 $('#controlBox-size-height').onchange = function(){
-    sitMap.h = this.value;
-    sitMap.format();
+    seatMap.h = this.value;
+    seatMap.format();
     viewBoxUpdate();
 }
 viewBox_table.addEventListener('click', function(event){
     let target = event.target;
     let index = new Array(...this.children).indexOf(target);
     if(index > -1){
-        let x = index % sitMap.w;
-        let y = Math.floor(index / sitMap.w);
+        let x = index % seatMap.w;
+        let y = Math.floor(index / seatMap.w);
         contentType = $('[name="content-type"]:checked').value;
-        sitMap.setType(x, y, contentType);
-        sitMap.format();
+        seatMap.setType(x, y, contentType);
+        seatMap.format();
         viewBoxUpdate();
     }
 });
@@ -551,9 +551,9 @@ viewBox_table.addEventListener('change', function(event){
     let target = event.target;
     let index = new Array(...this.children).indexOf(target);
     if(index > -1){
-        let x = index % sitMap.w;
-        let y = Math.floor(index / sitMap.w);
-        sitMap.setNum(x, y, parseInt(target.value));
+        let x = index % seatMap.w;
+        let y = Math.floor(index / seatMap.w);
+        seatMap.setNum(x, y, parseInt(target.value));
         viewBoxUpdate();
     }
 });
@@ -641,18 +641,18 @@ function changePage(page){
 changePage(pageNow);
 
 $('#controlBox-method-random').addEventListener('click', () => {
-    sitMap.random();
+    seatMap.random();
     viewBoxUpdate();
-    alert('Sit Map "Randomed"!');
+    alert('Seat Map "Randomed"!');
 });
 $('#controlBox-method-force').addEventListener('click', () => {
-    // sitMap.force();
-    sitMap.force2();
+    // seatMap.force();
+    seatMap.force2();
     viewBoxUpdate();
-    alert('Sit Map "Forced"!');
+    alert('Seat Map "Forced"!');
 });
 $('#controlBox-method-saveImage').addEventListener('click', () => {
-    sitMap.saveImage();
+    seatMap.saveImage();
 });
 
 // project read/write
@@ -662,9 +662,9 @@ async function openFile(){
         let options = {
             types: [
                 {
-                    description: 'Sit Randommer Project',
+                    description: 'Seat Randomizer Project',
                     accept: {
-                        'text/plain': ['.txt', '.text', '.TXT', '.TEXT', '.json', '.JSON', '.sitrandproj', '.sitRandProj'], 
+                        'text/plain': ['.txt', '.text', '.TXT', '.TEXT', '.json', '.JSON', '.seatrandproj', '.seatRandProj'], 
                         'application/json': ['.json', '.JSON']
                     }
                 }
@@ -681,7 +681,7 @@ async function openFile(){
     else{
         let input = $element('input');
         input.type = 'file';
-        input.setAttribute('description', 'Sit Randommer Project');
+        input.setAttribute('description', 'Seat Randomizer Project');
         input.setAttribute('accept', 'text/plain');
         input.onchange = async (event) => {
             window.fileEntry = undefined;
@@ -718,10 +718,10 @@ async function loadFile(jsonTextOrFile, type = 'text'){
     }
     else if(type == 'text'){
         let data = JSON.parse(jsonTextOrFile);
-        sitMap.load(data.sitMap);
+        seatMap.load(data.seatMap);
         setForceList(data.forceList);
-        $('#controlBox-size-width').value = sitMap.w;
-        $('#controlBox-size-height').value = sitMap.h;
+        $('#controlBox-size-width').value = seatMap.w;
+        $('#controlBox-size-height').value = seatMap.h;
         viewBoxUpdate();
     }
 }
@@ -733,7 +733,7 @@ async function updateLocalFile(entry, text) {
 function saveFile(){
     let dlLink = $e('a');
     let content = JSON.stringify({
-        sitMap: sitMap.dump(), 
+        seatMap: seatMap.dump(), 
         forceList: getForceList()
     });
     let errorFlag = false;
@@ -753,7 +753,7 @@ function saveFile(){
     }
     if(errorFlag){
         dlLink.href = 'data:text/html;charset=utf-8,'+encodeURIComponent(content);
-        dlLink.download = 'sitRandommer.sitRandProj';
+        dlLink.download = 'seatRandomizer.seatRandProj';
         dlLink.click();
     }
     alert('File Saved!');
@@ -773,7 +773,7 @@ window.addEventListener('keydown', event => {
                 break;
             case 'i':
                 cancelEvent(event);
-                sitMap.saveImage();
+                seatMap.saveImage();
                 break;
         }
     }
