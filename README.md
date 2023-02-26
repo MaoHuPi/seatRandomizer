@@ -1,4 +1,4 @@
-# sitRandommer
+# Seat Randomizer
 內定座位打亂神器
 
 > 2023 © MaoHuPi
